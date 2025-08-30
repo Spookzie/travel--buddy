@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { ArrowLeft, Calendar, MapPin, Clock, ChevronDown, ChevronUp, Star, Info } from "lucide-react";
-import { Itinerary, EnrichedPlace } from "./types";
+import { ArrowLeft, Calendar, MapPin, Clock, ChevronDown, ChevronUp, Star, Info, Cloud, Thermometer, Droplets, Wind } from "lucide-react";
+import { Itinerary, EnrichedPlace, WeatherForecast } from "./types";
 
 interface Props {
   itinerary: Itinerary;
@@ -63,6 +63,143 @@ const ItineraryView: React.FC<Props> = ({ itinerary, onBack, onPanToLocation, on
     );
   };
 
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Helper function to get weather icon
+  const getWeatherIcon = (weatherMain: string) => {
+    switch (weatherMain.toLowerCase()) {
+      case 'clear':
+        return (
+          <svg className="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+          </svg>
+        );
+      case 'clouds':
+        return (
+          <svg className="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+          </svg>
+        );
+      case 'rain':
+        return (
+          <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            <path d="M7 18a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2z" />
+            <path d="M8 20a1 1 0 100-2 1 1 0 000 2zm4 0a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+        );
+      case 'snow':
+        return (
+          <svg className="w-6 h-6 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            <path d="M8 18a1 1 0 100-2 1 1 0 000 2zm4 0a1 1 0 100-2 1 1 0 000 2z" />
+            <path d="M10 20a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+        );
+      case 'thunderstorm':
+        return (
+          <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            <path d="M10 12a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM8 16a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+        );
+      case 'drizzle':
+        return (
+          <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            <path d="M7 18a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+        );
+      case 'mist':
+      case 'fog':
+        return (
+          <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            <path d="M3 18a1 1 0 100-2 1 1 0 000 2zm14 0a1 1 0 100-2 1 1 0 000 2z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+          </svg>
+        );
+    }
+  };
+
+  // Helper function to render weather info
+  const renderWeatherInfo = (weather: WeatherForecast) => {
+    if (weather.unavailable) {
+      return (
+        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Cloud className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Weather</span>
+            </div>
+            <div className="text-sm text-gray-500">
+              Forecast not available
+            </div>
+          </div>
+          
+          <div className="text-xs text-gray-500 text-center">
+            Weather data is not available for this date
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Cloud className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-gray-900">Weather</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">{getWeatherIcon(weather.weather.main)}</span>
+            <span className="text-sm font-semibold text-gray-900">
+              {weather.temp.max}° / {weather.temp.min}°
+            </span>
+          </div>
+        </div>
+        
+        <div className="text-xs text-gray-600 text-center">
+          {weather.weather.description}
+        </div>
+        
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="flex items-center space-x-1 justify-center">
+            <Thermometer className="w-3 h-3 text-red-500" />
+            <span className="text-gray-600">{weather.temp.day}°</span>
+          </div>
+          <div className="flex items-center space-x-1 justify-center">
+            <Droplets className="w-3 h-3 text-blue-500" />
+            <span className="text-gray-600">{weather.humidity}%</span>
+          </div>
+          <div className="flex items-center space-x-1 justify-center">
+            <Wind className="w-3 h-3 text-gray-500" />
+            <span className="text-gray-600">{weather.windSpeed} km/h</span>
+          </div>
+        </div>
+        
+        {weather.precipitation > 0 && (
+          <div className="text-xs text-center text-blue-600">
+            {weather.precipitation}% chance of rain
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="absolute top-6 right-6 z-10 w-96 bg-white rounded-xl shadow-lg border border-gray-200 max-h-[40rem] overflow-hidden">
       {/* Header */}
@@ -80,12 +217,37 @@ const ItineraryView: React.FC<Props> = ({ itinerary, onBack, onPanToLocation, on
         </h3>
       </div>
 
+      {/* Trip Summary */}
+      {itinerary.startDate && (
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Trip Start:</span>
+            <span className="font-medium text-gray-900">
+              {formatDate(itinerary.startDate)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm mt-1">
+            <span className="text-gray-600">Duration:</span>
+            <span className="font-medium text-gray-900">
+              {itinerary.days} day{itinerary.days !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Itinerary Content */}
       <div className="max-h-96 overflow-y-auto">
         {itinerary.itinerary.length > 0 ? (
           <div className="p-4 space-y-4">
             {itinerary.itinerary.map((day) => {
               const isExpanded = expandedDays.includes(day.day);
+              const dayWeather = itinerary.weatherForecast?.[day.day - 1];
+              const dayDate = itinerary.startDate ? 
+                new Date(itinerary.startDate) : null;
+              if (dayDate) {
+                dayDate.setDate(dayDate.getDate() + day.day - 1);
+              }
+              
               return (
                 <div
                   key={day.day}
@@ -104,9 +266,16 @@ const ItineraryView: React.FC<Props> = ({ itinerary, onBack, onPanToLocation, on
                         <h4 className="text-sm font-semibold text-gray-900">
                           Day {day.day}
                         </h4>
-                        <p className="text-xs text-gray-500">
-                          {day.places.length} place{day.places.length !== 1 ? 's' : ''}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-xs text-gray-500">
+                            {day.places.length} place{day.places.length !== 1 ? 's' : ''}
+                          </p>
+                          {dayDate && (
+                            <span className="text-xs text-blue-600 font-medium">
+                              {formatDate(dayDate.toISOString())}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     {isExpanded ? (
@@ -119,6 +288,13 @@ const ItineraryView: React.FC<Props> = ({ itinerary, onBack, onPanToLocation, on
                   {/* Day Content */}
                   {isExpanded && (
                     <div className="p-4 space-y-3">
+                      {/* Weather Information */}
+                      {dayWeather && (
+                        <div className="mb-3">
+                          {renderWeatherInfo(dayWeather)}
+                        </div>
+                      )}
+                      
                       {/* Places */}
                       {day.places.length > 0 ? (
                         <div className="space-y-2">

@@ -26,6 +26,35 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Ensure input fields have visible text */
+input, textarea, select {
+  color: #111827 !important; /* text-gray-900 */
+  font-weight: 500 !important; /* Make text slightly bolder */
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6b7280 !important; /* text-gray-500 */
+  font-weight: 400 !important;
+}
+
+/* Date input specific styling */
+input[type="date"] {
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
+/* Focus states for better visibility */
+input:focus, textarea:focus, select:focus {
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
+/* Additional styling for better text visibility */
+input[type="text"], input[type="search"], input[type="email"], input[type="password"] {
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
 /* Custom Leaflet Tooltip Styles */
 .custom-tooltip {
   background: rgba(0, 0, 0, 0.8) !important;

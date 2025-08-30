@@ -17,6 +17,7 @@ interface TripPlanRequest {
   }[];
   days: number;
   budget: 'low' | 'moderate' | 'luxury';
+  startDate?: string; // Optional start date for weather integration
 }
 
 // Enriched place data for better display
@@ -38,6 +39,7 @@ interface EnrichedItinerary {
   destination: string;
   days: number;
   budget: string;
+  startDate?: string; // Start date for weather integration
   itinerary: {
     day: number;
     places: EnrichedPlace[];
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required fields
-    const { destination, places, days, budget } = tripRequest;
+    const { destination, places, days, budget, startDate } = tripRequest;
     const errors: string[] = [];
 
     if (!destination?.name || !destination?.lat || !destination?.lon) {
@@ -339,6 +341,11 @@ Important: Use the EXACT place names and coordinates I provided above.`;
 
     // Add enrichedPlaces to the response
     itinerary.enrichedPlaces = enrichedPlaces;
+    
+    // Add startDate if provided
+    if (startDate) {
+      itinerary.startDate = startDate;
+    }
 
     const generationTime = Date.now() - startTime;
     

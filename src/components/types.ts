@@ -26,6 +26,26 @@ export interface Activity {
   type?: string;
 }
 
+// Weather forecast types
+export interface WeatherForecast {
+  date: string;
+  temp: {
+    min: number;
+    max: number;
+    day: number;
+    night: number;
+  };
+  weather: {
+    main: string;
+    description: string;
+    icon: string;
+  };
+  humidity: number;
+  windSpeed: number;
+  precipitation: number;
+  unavailable?: boolean; // Indicates if forecast data is not available for this date
+}
+
 // Enriched place data for better display
 export interface EnrichedPlace {
   name: string;
@@ -43,14 +63,17 @@ export interface EnrichedPlace {
 export interface ItineraryDay {
   day: number;
   places: EnrichedPlace[];
+  weather?: WeatherForecast;
 }
 
 export interface Itinerary {
   destination: string;
   days: number;
   budget: string;
+  startDate: string;
   itinerary: ItineraryDay[];
   enrichedPlaces?: EnrichedPlace[]; // All places with enriched data
+  weatherForecast?: WeatherForecast[]; // Weather for each day
 }
 
 // Frontend-specific types for backward compatibility
@@ -83,6 +106,7 @@ export interface TripRequest {
   }[];
   days: number;
   budget: 'low' | 'moderate' | 'luxury';
+  startDate: string; // ISO date string
 }
 
 // Component prop types - re-export from LeafletMap
